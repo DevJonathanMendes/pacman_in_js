@@ -13,54 +13,61 @@ const timer = document.querySelector('.timer');
 const game = document.querySelector('.game');
 const btnStart = document.querySelector('.btnStart');
 
+canvas.width = 420;
+canvas.height = 720;
+
+const fruits = [];
+const boundaries = [];
+const powerUps = [];
+const keys = {
+	w: {
+		pressed: false,
+	},
+	a: {
+		pressed: false,
+	},
+	s: {
+		pressed: false,
+	},
+	d: {
+		pressed: false,
+	},
+	btn_up: {
+		pressed: false,
+	},
+	btn_left: {
+		pressed: false,
+	},
+	btn_down: {
+		pressed: false,
+	},
+	btn_right: {
+		pressed: false,
+	},
+};
+const map = [
+	['1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '2'],
+	['|', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '|'],
+	['|', '.', 'b', '.', '[', '7', ']', '.', 'b', '.', '|'],
+	['|', '.', '.', '.', '.', '_', '.', '.', '.', '.', '|'],
+	['|', '.', '[', ']', '.', 'p', '.', '[', ']', '.', '|'],
+	['|', '.', '.', '.', '.', '^', '.', '.', '.', '.', '|'],
+	['|', '.', 'b', '.', '[', '+', ']', '.', 'b', '.', '|'],
+	['|', '.', '.', '.', '.', '_', '.', '.', '.', '.', '|'],
+	['|', '.', '[', ']', '.', 'p', '.', '[', ']', '.', '|'],
+	['|', '.', '.', '.', '.', '^', '.', '.', '.', '.', '|'],
+	['|', '.', 'b', '.', '[', '5', ']', '.', 'b', '.', '|'],
+	['|', 'p', '.', '.', '.', '.', '.', '.', '.', 'p', '|'],
+	['4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '3'],
+];
+
+let lastKey = '';
+let score = 0;
 let gameAudio;
 let startTime = 0;
 let intervalID = null;
 let startMove = false;
-
-function playAudio(music, volume) {
-	const audio = new Audio(`./src/sounds/${music}.mp3`);
-	audio.volume = volume;
-
-	try {
-		audio.play();
-	} catch {}
-	return audio;
-}
-
-function updateTime() {
-	const elapsedTime = Date.now() - startTime;
-	const secs = Math.floor((elapsedTime / 1000) % 60);
-	const mins = Math.floor((elapsedTime / (1000 * 60)) % 60);
-
-	const formattedSecs = secs.toString().padStart(2, '0');
-	const formattedMins = mins.toString().padStart(2, '0');
-
-	timeNumber.textContent = `${formattedMins}:${formattedSecs}`;
-}
-
-btnStart.addEventListener('click', () => {
-	info.style.display = 'none';
-	game.style.display = 'block';
-
-	gameAudio = playAudio('soundGame', 0.5);
-	startTime = Date.now();
-	startMove = true;
-	intervalID = setInterval(updateTime, 1000);
-});
-
-function youLose() {
-	game.style.display = 'none';
-	lose.style.display = 'block';
-}
-function youWin() {
-	game.style.display = 'none';
-	win.style.display = 'block';
-	timer.innerHTML = timeNumber.textContent;
-}
-
-canvas.width = 420;
-canvas.height = 720;
+let animationId;
 
 class Boundary {
 	static width = 36;
@@ -178,9 +185,6 @@ class PowerUp {
 	}
 }
 
-const fruits = [];
-const boundaries = [];
-const powerUps = [];
 const ghosts = [
 	new Ghost({
 		position: {
@@ -205,6 +209,7 @@ const ghosts = [
 		color: '#ffa500',
 	}),
 ];
+
 const player = new Player({
 	position: {
 		x: Boundary.width + Boundary.width / 2,
@@ -215,58 +220,6 @@ const player = new Player({
 		y: 0,
 	},
 });
-
-const keys = {
-	w: {
-		pressed: false,
-	},
-	a: {
-		pressed: false,
-	},
-	s: {
-		pressed: false,
-	},
-	d: {
-		pressed: false,
-	},
-	btn_up: {
-		pressed: false,
-	},
-	btn_left: {
-		pressed: false,
-	},
-	btn_down: {
-		pressed: false,
-	},
-	btn_right: {
-		pressed: false,
-	},
-};
-
-let lastKey = '';
-
-let score = 0;
-const map = [
-	['1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '2'],
-	['|', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '|'],
-	['|', '.', 'b', '.', '[', '7', ']', '.', 'b', '.', '|'],
-	['|', '.', '.', '.', '.', '_', '.', '.', '.', '.', '|'],
-	['|', '.', '[', ']', '.', 'p', '.', '[', ']', '.', '|'],
-	['|', '.', '.', '.', '.', '^', '.', '.', '.', '.', '|'],
-	['|', '.', 'b', '.', '[', '+', ']', '.', 'b', '.', '|'],
-	['|', '.', '.', '.', '.', '_', '.', '.', '.', '.', '|'],
-	['|', '.', '[', ']', '.', 'p', '.', '[', ']', '.', '|'],
-	['|', '.', '.', '.', '.', '^', '.', '.', '.', '.', '|'],
-	['|', '.', 'b', '.', '[', '5', ']', '.', 'b', '.', '|'],
-	['|', 'p', '.', '.', '.', '.', '.', '.', '.', 'p', '|'],
-	['4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '3'],
-];
-
-function createImages(src) {
-	const image = new Image();
-	image.src = src;
-	return image;
-}
 
 map.forEach((row, i) => {
 	row.forEach((symbol, j) => {
@@ -474,6 +427,44 @@ map.forEach((row, i) => {
 	});
 });
 
+function playAudio(music, volume) {
+	const audio = new Audio(`./src/sounds/${music}.mp3`);
+	audio.volume = volume;
+
+	try {
+		audio.play();
+	} catch {}
+	return audio;
+}
+
+function updateTime() {
+	const elapsedTime = Date.now() - startTime;
+	const secs = Math.floor((elapsedTime / 1000) % 60);
+	const mins = Math.floor((elapsedTime / (1000 * 60)) % 60);
+
+	const formattedSecs = secs.toString().padStart(2, '0');
+	const formattedMins = mins.toString().padStart(2, '0');
+
+	timeNumber.textContent = `${formattedMins}:${formattedSecs}`;
+}
+
+function youLose() {
+	game.style.display = 'none';
+	lose.style.display = 'block';
+}
+
+function youWin() {
+	game.style.display = 'none';
+	win.style.display = 'block';
+	timer.innerHTML = timeNumber.textContent;
+}
+
+function createImages(src) {
+	const image = new Image();
+	image.src = src;
+	return image;
+}
+
 function collides({ circle, rectangle }) {
 	const padding = Boundary.width / 2 - circle.radius - 1;
 
@@ -489,7 +480,6 @@ function collides({ circle, rectangle }) {
 	);
 }
 
-let animationId;
 function animate() {
 	animationId = requestAnimationFrame(animate);
 	c.clearRect(0, 0, canvas.width, canvas.height);
@@ -837,6 +827,15 @@ addEventListener('keyup', ({ key }) => {
 	}
 });
 
+btnStart.addEventListener('click', () => {
+	info.style.display = 'none';
+	game.style.display = 'block';
+
+	gameAudio = playAudio('soundGame', 0.5);
+	startTime = Date.now();
+	startMove = true;
+	intervalID = setInterval(updateTime, 1000);
+});
 btn_up.addEventListener('click', () => {
 	keys.btn_up.pressed = true;
 	lastKey = 'btn_up';
