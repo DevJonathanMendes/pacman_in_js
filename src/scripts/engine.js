@@ -1,5 +1,5 @@
 const canvas = document.querySelector('canvas');
-const c = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 const scoreNumber = document.querySelector('.scoreNumber');
 const timeNumber = document.querySelector('.timeNumber');
 const btn_up = document.querySelector('.btn_up');
@@ -80,7 +80,7 @@ class Boundary {
 	}
 
 	draw() {
-		c.drawImage(this.image, this.position.x, this.position.y);
+		ctx.drawImage(this.image, this.position.x, this.position.y);
 	}
 }
 
@@ -95,23 +95,23 @@ class Player {
 	}
 
 	draw() {
-		c.save();
-		c.translate(this.position.x, this.position.y);
-		c.rotate(this.rotation);
-		c.translate(-this.position.x, -this.position.y);
-		c.beginPath();
-		c.arc(
+		ctx.save();
+		ctx.translate(this.position.x, this.position.y);
+		ctx.rotate(this.rotation);
+		ctx.translate(-this.position.x, -this.position.y);
+		ctx.beginPath();
+		ctx.arc(
 			this.position.x,
 			this.position.y,
 			this.radius,
 			this.radians,
 			Math.PI * 2 - this.radians,
 		);
-		c.lineTo(this.position.x, this.position.y);
-		c.fillStyle = '#ff0';
-		c.fill();
-		c.closePath();
-		c.restore();
+		ctx.lineTo(this.position.x, this.position.y);
+		ctx.fillStyle = '#ff0';
+		ctx.fill();
+		ctx.closePath();
+		ctx.restore();
 	}
 
 	update() {
@@ -139,11 +139,11 @@ class Ghost {
 	}
 
 	draw() {
-		c.beginPath();
-		c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-		c.fillStyle = this.scared ? '#00f' : this.color;
-		c.fill();
-		c.closePath();
+		ctx.beginPath();
+		ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+		ctx.fillStyle = this.scared ? '#00f' : this.color;
+		ctx.fill();
+		ctx.closePath();
 	}
 
 	update() {
@@ -162,11 +162,11 @@ class Fruit {
 	}
 
 	draw() {
-		c.beginPath();
-		c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-		c.fillStyle = '#fff';
-		c.fill();
-		c.closePath();
+		ctx.beginPath();
+		ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+		ctx.fillStyle = '#fff';
+		ctx.fill();
+		ctx.closePath();
 	}
 }
 
@@ -177,11 +177,11 @@ class PowerUp {
 	}
 
 	draw() {
-		c.beginPath();
-		c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-		c.fillStyle = '#fff';
-		c.fill();
-		c.closePath();
+		ctx.beginPath();
+		ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+		ctx.fillStyle = '#fff';
+		ctx.fill();
+		ctx.closePath();
 	}
 }
 
@@ -482,7 +482,7 @@ function collides({ circle, rectangle }) {
 
 function animate() {
 	animationId = requestAnimationFrame(animate);
-	c.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	if (
 		(keys.w.pressed && lastKey === 'w') ||
