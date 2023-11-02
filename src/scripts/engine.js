@@ -1,5 +1,6 @@
-const canvas = document.querySelector('canvas');
-const ctx = canvas.getContext('2d');
+import { Boundary, Player, Ghost, Fruit, PowerUp } from './classes.js';
+import { ctx, WIDTH, HEIGHT, SPEED } from './constants.js';
+
 const scoreNumber = document.querySelector('.scoreNumber');
 const timeNumber = document.querySelector('.timeNumber');
 const btn_up = document.querySelector('.btn_up');
@@ -12,14 +13,6 @@ const win = document.querySelector('.win');
 const timer = document.querySelector('.timer');
 const game = document.querySelector('.game');
 const btnStart = document.querySelector('.btnStart');
-
-canvas.width = 420;
-canvas.height = 720;
-
-const SIZE = 36;
-const WIDTH = SIZE;
-const HEIGHT = SIZE;
-const SPEED = 2;
 
 const fruits = [];
 const boundaries = [];
@@ -71,129 +64,9 @@ let score = 0;
 let gameAudio;
 let startTime = 0;
 let intervalID = null;
-let startMove = false;
 let animationId;
 
-class Boundary {
-	static width = WIDTH;
-	static height = HEIGHT;
-	constructor({ position, image }) {
-		this.position = position;
-		this.width = SIZE;
-		this.height = SIZE;
-		this.image = (() => {
-			const img = new Image();
-			img.src = image;
-			return img;
-		})();
-	}
-
-	draw() {
-		ctx.drawImage(this.image, this.position.x, this.position.y);
-	}
-}
-
-class Player {
-	constructor({ position, velocity }) {
-		this.position = position;
-		this.velocity = velocity;
-		this.radius = 15;
-		this.radians = 0.75;
-		this.openRate = 0.1;
-		this.rotation = 0;
-	}
-
-	draw() {
-		ctx.save();
-		ctx.translate(this.position.x, this.position.y);
-		ctx.rotate(this.rotation);
-		ctx.translate(-this.position.x, -this.position.y);
-		ctx.beginPath();
-		ctx.arc(
-			this.position.x,
-			this.position.y,
-			this.radius,
-			this.radians,
-			Math.PI * 2 - this.radians,
-		);
-		ctx.lineTo(this.position.x, this.position.y);
-		ctx.fillStyle = '#ff0';
-		ctx.fill();
-		ctx.closePath();
-		ctx.restore();
-	}
-
-	update() {
-		this.draw();
-		this.position.x += this.velocity.x;
-		this.position.y += this.velocity.y;
-
-		if (this.radians < 0 || this.radians > 0.75) {
-			this.openRate = -this.openRate;
-		}
-		this.radians += this.openRate;
-	}
-}
-
-class Ghost {
-	constructor({ position, velocity, color }) {
-		this.position = position;
-		this.velocity = velocity;
-		this.radius = 15;
-		this.color = color;
-		this.prevCollisions = [];
-
-		this.scared = false;
-	}
-
-	draw() {
-		ctx.beginPath();
-		ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-		ctx.fillStyle = this.scared ? '#00f' : this.color;
-		ctx.fill();
-		ctx.closePath();
-	}
-
-	update() {
-		if (startMove) {
-			this.draw();
-			this.position.x += this.velocity.x;
-			this.position.y += this.velocity.y;
-		}
-	}
-}
-
-class Fruit {
-	constructor({ position }) {
-		this.position = position;
-		this.radius = 3;
-	}
-
-	draw() {
-		ctx.beginPath();
-		ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-		ctx.fillStyle = '#fff';
-		ctx.fill();
-		ctx.closePath();
-	}
-}
-
-class PowerUp {
-	constructor({ position }) {
-		this.position = position;
-		this.radius = 8;
-	}
-
-	draw() {
-		ctx.beginPath();
-		ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-		ctx.fillStyle = '#fff';
-		ctx.fill();
-		ctx.closePath();
-	}
-}
-
-const createGhost = (color, wValue, hValue) => {
+const createGhost = (color) => {
 	return new Ghost({
 		position: {
 			x: WIDTH * 8 + WIDTH / 2,
@@ -207,12 +80,12 @@ const createGhost = (color, wValue, hValue) => {
 	});
 };
 
-const ghosts = [createGhost('#f00', 8, 11), createGhost('#ffa500', 6, 11)];
+const ghosts = [createGhost('#f00'), createGhost('#ffa500')];
 
 const player = new Player({
 	position: {
-		x: Boundary.width + Boundary.width / 2,
-		y: Boundary.height + Boundary.height / 2,
+		x: WIDTH + WIDTH / 2,
+		y: HEIGHT + HEIGHT / 2,
 	},
 	velocity: {
 		x: 0,
@@ -236,52 +109,52 @@ for (let posY in map) {
 	for (let posX in map[posY]) {
 		switch (map[posY][posX]) {
 			case '-':
-				createWall(posX, posY, './src/images/pipeHorizontal.png');
+				createWall(posX, posY, './images/pipeHorizontal.png');
 				break;
 			case '|':
-				createWall(posX, posY, './src/images/pipeVertical.png');
+				createWall(posX, posY, './images/pipeVertical.png');
 				break;
 			case '1':
-				createWall(posX, posY, './src/images/pipeCorner1.png');
+				createWall(posX, posY, './images/pipeCorner1.png');
 				break;
 			case '2':
-				createWall(posX, posY, './src/images/pipeCorner2.png');
+				createWall(posX, posY, './images/pipeCorner2.png');
 				break;
 			case '3':
-				createWall(posX, posY, './src/images/pipeCorner3.png');
+				createWall(posX, posY, './images/pipeCorner3.png');
 				break;
 			case '4':
-				createWall(posX, posY, './src/images/pipeCorner4.png');
+				createWall(posX, posY, './images/pipeCorner4.png');
 				break;
 			case 'b':
-				createWall(posX, posY, './src/images/block.png');
+				createWall(posX, posY, './images/block.png');
 				break;
 			case '[':
-				createWall(posX, posY, './src/images/capLeft.png');
+				createWall(posX, posY, './images/capLeft.png');
 				break;
 			case ']':
-				createWall(posX, posY, './src/images/capRight.png');
+				createWall(posX, posY, './images/capRight.png');
 				break;
 			case '_':
-				createWall(posX, posY, './src/images/capBottom.png');
+				createWall(posX, posY, './images/capBottom.png');
 				break;
 			case '^':
-				createWall(posX, posY, './src/images/capTop.png');
+				createWall(posX, posY, './images/capTop.png');
 				break;
 			case '+':
-				createWall(posX, posY, './src/images/pipeCross.png');
+				createWall(posX, posY, './images/pipeCross.png');
 				break;
 			case '5':
-				createWall(posX, posY, './src/images/pipeConnectorTop.png');
+				createWall(posX, posY, './images/pipeConnectorTop.png');
 				break;
 			case '6':
-				createWall(posX, posY, './src/images/pipeConnectorRight.png');
+				createWall(posX, posY, './images/pipeConnectorRight.png');
 				break;
 			case '7':
-				createWall(posX, posY, './src/images/pipeConnectorBottom.png');
+				createWall(posX, posY, './images/pipeConnectorBottom.png');
 				break;
 			case '8':
-				createWall(posX, posY, './src/images/pipeConnectorLeft.png');
+				createWall(posX, posY, './images/pipeConnectorLeft.png');
 				break;
 			case '.':
 				fruits.push(
@@ -308,7 +181,7 @@ for (let posY in map) {
 }
 
 function playAudio(music, volume) {
-	const audio = new Audio(`./src/sounds/${music}.mp3`);
+	const audio = new Audio(`./sounds/${music}.mp3`);
 	audio.volume = volume;
 
 	try {
@@ -356,7 +229,7 @@ function collides({ circle, rectangle }) {
 
 function animate() {
 	animationId = requestAnimationFrame(animate);
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.clearRect(0, 0, 420, 720);
 
 	if (
 		(keys.w.pressed && lastKey === 'w') ||
@@ -707,7 +580,7 @@ btnStart.addEventListener('click', () => {
 
 	gameAudio = playAudio('soundGame', 0.5);
 	startTime = Date.now();
-	startMove = true;
+
 	intervalID = setInterval(updateTime, 1000);
 });
 btn_up.addEventListener('click', () => {

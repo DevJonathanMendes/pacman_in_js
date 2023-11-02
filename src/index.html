@@ -14,8 +14,8 @@
 	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 	<!-- css -->
-	<link rel="stylesheet" href="./src/styles/reset.css">
-	<link rel="stylesheet" href="./src/styles/style.css">
+	<link rel="stylesheet" href="./styles/reset.css">
+	<link rel="stylesheet" href="./styles/style.css">
 </head>
 
 <!-- projeto -->
@@ -23,7 +23,7 @@
 <body>
 	<div class="info">
 		<h1>GAME INFO</h1>
-		<img src="./src/images/pacmanEating.jpg" />
+		<img src="./images/pacmanEating.jpg" />
 		<p>If you're using a PC:</p>
 		<ul>
 			<li>Use WASD to move</li>
@@ -56,19 +56,19 @@
 	</div>
 	<div class="lose">
 		<h1>YOU LOSE</h1>
-		<img src="./src/images/pacmanLose.jpg" />
+		<img src="./images/pacmanLose.jpg" />
 		<p>Come on again</p>
 		<div class="btnReset" onclick="window.location.reload()">RESET</div>
 	</div>
 	<div class="win">
 		<h1>YOU WIN</h1>
-		<img src="./src/images/pacmanWin.jpg" />
+		<img src="./images/pacmanWin.jpg" />
 		<p>Your time is: <span class="timer"></span></p>
 		<div class="btnReset" onclick="window.location.reload()">RESET</div>
 	</div>
 
 	<!-- js/engine -->
-	<script src="./src/scripts/engine.js" defer></script>
+	<script type="module" src="./scripts/engine.js" defer></script>
 </body>
 
 </html>
