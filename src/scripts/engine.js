@@ -1,5 +1,6 @@
-import { Boundary, Player, Ghost, Fruit, PowerUp } from './classes.js';
+import { Boundary, Player, Ghost } from './classes.js';
 import { ctx, WIDTH, HEIGHT, SPEED } from './constants.js';
+import { boundaries, fruits, powerUps } from './map.js';
 
 const scoreNumber = document.querySelector('.scoreNumber');
 const timeNumber = document.querySelector('.timeNumber');
@@ -14,9 +15,6 @@ const timer = document.querySelector('.timer');
 const game = document.querySelector('.game');
 const btnStart = document.querySelector('.btnStart');
 
-const fruits = [];
-const boundaries = [];
-const powerUps = [];
 const keys = {
 	w: {
 		pressed: false,
@@ -43,21 +41,6 @@ const keys = {
 		pressed: false,
 	},
 };
-const map = [
-	['1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '2'],
-	['|', '.', '.', '.', '.', '.', '.', '.', '.', 'p', '|'],
-	['|', '.', 'b', '.', '[', '7', ']', '.', 'b', '.', '|'],
-	['|', '.', '.', '.', '.', '_', '.', '.', '.', '.', '|'],
-	['|', '.', '[', ']', '.', 'p', '.', '[', ']', '.', '|'],
-	['|', '.', '.', '.', '.', '^', '.', '.', '.', '.', '|'],
-	['|', '.', 'b', '.', '[', '+', ']', '.', 'b', '.', '|'],
-	['|', '.', '.', '.', '.', '_', '.', '.', '.', '.', '|'],
-	['|', '.', '[', ']', '.', 'p', '.', '[', ']', '.', '|'],
-	['|', '.', '.', '.', '.', '^', '.', '.', '.', '.', '|'],
-	['|', '.', 'b', '.', '[', '5', ']', '.', 'b', '.', '|'],
-	['|', 'p', '.', '.', '.', '.', '.', '.', '.', 'p', '|'],
-	['4', '-', '-', '-', '-', '-', '-', '-', '-', '-', '3'],
-];
 
 let lastKey = '';
 let score = 0;
@@ -92,93 +75,6 @@ const player = new Player({
 		y: 0,
 	},
 });
-
-function createWall(posX, posY, img) {
-	boundaries.push(
-		new Boundary({
-			position: {
-				x: WIDTH * posX,
-				y: HEIGHT * posY,
-			},
-			image: img,
-		}),
-	);
-}
-
-for (let posY in map) {
-	for (let posX in map[posY]) {
-		switch (map[posY][posX]) {
-			case '-':
-				createWall(posX, posY, './images/pipeHorizontal.png');
-				break;
-			case '|':
-				createWall(posX, posY, './images/pipeVertical.png');
-				break;
-			case '1':
-				createWall(posX, posY, './images/pipeCorner1.png');
-				break;
-			case '2':
-				createWall(posX, posY, './images/pipeCorner2.png');
-				break;
-			case '3':
-				createWall(posX, posY, './images/pipeCorner3.png');
-				break;
-			case '4':
-				createWall(posX, posY, './images/pipeCorner4.png');
-				break;
-			case 'b':
-				createWall(posX, posY, './images/block.png');
-				break;
-			case '[':
-				createWall(posX, posY, './images/capLeft.png');
-				break;
-			case ']':
-				createWall(posX, posY, './images/capRight.png');
-				break;
-			case '_':
-				createWall(posX, posY, './images/capBottom.png');
-				break;
-			case '^':
-				createWall(posX, posY, './images/capTop.png');
-				break;
-			case '+':
-				createWall(posX, posY, './images/pipeCross.png');
-				break;
-			case '5':
-				createWall(posX, posY, './images/pipeConnectorTop.png');
-				break;
-			case '6':
-				createWall(posX, posY, './images/pipeConnectorRight.png');
-				break;
-			case '7':
-				createWall(posX, posY, './images/pipeConnectorBottom.png');
-				break;
-			case '8':
-				createWall(posX, posY, './images/pipeConnectorLeft.png');
-				break;
-			case '.':
-				fruits.push(
-					new Fruit({
-						position: {
-							x: posX * WIDTH + WIDTH / 2,
-							y: posY * HEIGHT + HEIGHT / 2,
-						},
-					}),
-				);
-				break;
-			case 'p':
-				powerUps.push(
-					new PowerUp({
-						position: {
-							x: posX * WIDTH + WIDTH / 2,
-							y: posY * HEIGHT + HEIGHT / 2,
-						},
-					}),
-				);
-				break;
-		}
-	}
-}
 
 function playAudio(music, volume) {
 	const audio = new Audio(`./sounds/${music}.mp3`);
