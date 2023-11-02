@@ -16,6 +16,11 @@ const btnStart = document.querySelector('.btnStart');
 canvas.width = 420;
 canvas.height = 720;
 
+const SIZE = 36;
+const WIDTH = SIZE;
+const HEIGHT = SIZE;
+const SPEED = 2;
+
 const fruits = [];
 const boundaries = [];
 const powerUps = [];
@@ -70,13 +75,17 @@ let startMove = false;
 let animationId;
 
 class Boundary {
-	static width = 36;
-	static height = 36;
+	static width = WIDTH;
+	static height = HEIGHT;
 	constructor({ position, image }) {
 		this.position = position;
-		this.width = 36;
-		this.height = 36;
-		this.image = image;
+		this.width = SIZE;
+		this.height = SIZE;
+		this.image = (() => {
+			const img = new Image();
+			img.src = image;
+			return img;
+		})();
 	}
 
 	draw() {
@@ -127,14 +136,13 @@ class Player {
 }
 
 class Ghost {
-	static speed = 2;
 	constructor({ position, velocity, color }) {
 		this.position = position;
 		this.velocity = velocity;
 		this.radius = 15;
 		this.color = color;
 		this.prevCollisions = [];
-		this.speed = 2;
+
 		this.scared = false;
 	}
 
@@ -185,30 +193,21 @@ class PowerUp {
 	}
 }
 
-const ghosts = [
-	new Ghost({
+const createGhost = (color, wValue, hValue) => {
+	return new Ghost({
 		position: {
-			x: Boundary.width * 8 + Boundary.width / 2,
-			y: Boundary.height * 11 + Boundary.height / 2,
+			x: WIDTH * 8 + WIDTH / 2,
+			y: HEIGHT * 11 + HEIGHT / 2,
 		},
 		velocity: {
-			x: Ghost.speed,
+			x: SPEED,
 			y: 0,
 		},
-		color: '#f00',
-	}),
-	new Ghost({
-		position: {
-			x: Boundary.width * 6 + Boundary.width / 2,
-			y: Boundary.height * 11 + Boundary.height / 2,
-		},
-		velocity: {
-			x: Ghost.speed,
-			y: 0,
-		},
-		color: '#ffa500',
-	}),
-];
+		color,
+	});
+};
+
+const ghosts = [createGhost('#f00', 8, 11), createGhost('#ffa500', 6, 11)];
 
 const player = new Player({
 	position: {
@@ -221,194 +220,75 @@ const player = new Player({
 	},
 });
 
-map.forEach((row, i) => {
-	row.forEach((symbol, j) => {
-		switch (symbol) {
+function createWall(posX, posY, img) {
+	boundaries.push(
+		new Boundary({
+			position: {
+				x: WIDTH * posX,
+				y: HEIGHT * posY,
+			},
+			image: img,
+		}),
+	);
+}
+
+for (let posY in map) {
+	for (let posX in map[posY]) {
+		switch (map[posY][posX]) {
 			case '-':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: Boundary.width * j,
-							y: Boundary.height * i,
-						},
-						image: createImages('./src/images/pipeHorizontal.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeHorizontal.png');
 				break;
 			case '|':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: Boundary.width * j,
-							y: Boundary.height * i,
-						},
-						image: createImages('./src/images/pipeVertical.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeVertical.png');
 				break;
 			case '1':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: Boundary.width * j,
-							y: Boundary.height * i,
-						},
-						image: createImages('./src/images/pipeCorner1.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeCorner1.png');
 				break;
 			case '2':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: Boundary.width * j,
-							y: Boundary.height * i,
-						},
-						image: createImages('./src/images/pipeCorner2.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeCorner2.png');
 				break;
 			case '3':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: Boundary.width * j,
-							y: Boundary.height * i,
-						},
-						image: createImages('./src/images/pipeCorner3.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeCorner3.png');
 				break;
 			case '4':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: Boundary.width * j,
-							y: Boundary.height * i,
-						},
-						image: createImages('./src/images/pipeCorner4.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeCorner4.png');
 				break;
 			case 'b':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: Boundary.width * j,
-							y: Boundary.height * i,
-						},
-						image: createImages('./src/images/block.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/block.png');
 				break;
 			case '[':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						image: createImages('./src/images/capLeft.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/capLeft.png');
 				break;
 			case ']':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						image: createImages('./src/images/capRight.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/capRight.png');
 				break;
 			case '_':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						image: createImages('./src/images/capBottom.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/capBottom.png');
 				break;
 			case '^':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						image: createImages('./src/images/capTop.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/capTop.png');
 				break;
 			case '+':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						image: createImages('./src/images/pipeCross.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeCross.png');
 				break;
 			case '5':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						color: 'blue',
-						image: createImages('./src/images/pipeConnectorTop.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeConnectorTop.png');
 				break;
 			case '6':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						color: 'blue',
-						image: createImages('./src/images/pipeConnectorRight.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeConnectorRight.png');
 				break;
 			case '7':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						color: 'blue',
-						image: createImages('./src/images/pipeConnectorBottom.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeConnectorBottom.png');
 				break;
 			case '8':
-				boundaries.push(
-					new Boundary({
-						position: {
-							x: j * Boundary.width,
-							y: i * Boundary.height,
-						},
-						image: createImages('./src/images/pipeConnectorLeft.png'),
-					}),
-				);
+				createWall(posX, posY, './src/images/pipeConnectorLeft.png');
 				break;
 			case '.':
 				fruits.push(
 					new Fruit({
 						position: {
-							x: j * Boundary.width + Boundary.width / 2,
-							y: i * Boundary.height + Boundary.height / 2,
+							x: posX * WIDTH + WIDTH / 2,
+							y: posY * HEIGHT + HEIGHT / 2,
 						},
 					}),
 				);
@@ -417,15 +297,15 @@ map.forEach((row, i) => {
 				powerUps.push(
 					new PowerUp({
 						position: {
-							x: j * Boundary.width + Boundary.width / 2,
-							y: i * Boundary.height + Boundary.height / 2,
+							x: posX * WIDTH + WIDTH / 2,
+							y: posY * HEIGHT + HEIGHT / 2,
 						},
 					}),
 				);
 				break;
 		}
-	});
-});
+	}
+}
 
 function playAudio(music, volume) {
 	const audio = new Audio(`./src/sounds/${music}.mp3`);
@@ -457,12 +337,6 @@ function youWin() {
 	game.style.display = 'none';
 	win.style.display = 'block';
 	timer.innerHTML = timeNumber.textContent;
-}
-
-function createImages(src) {
-	const image = new Image();
-	image.src = src;
-	return image;
 }
 
 function collides({ circle, rectangle }) {
@@ -683,7 +557,7 @@ function animate() {
 					circle: {
 						...ghost,
 						velocity: {
-							x: ghost.speed,
+							x: SPEED,
 							y: 0,
 						},
 					},
@@ -698,7 +572,7 @@ function animate() {
 					circle: {
 						...ghost,
 						velocity: {
-							x: -ghost.speed,
+							x: -SPEED,
 							y: 0,
 						},
 					},
@@ -714,7 +588,7 @@ function animate() {
 						...ghost,
 						velocity: {
 							x: 0,
-							y: -ghost.speed,
+							y: -SPEED,
 						},
 					},
 					rectangle: boundary,
@@ -729,7 +603,7 @@ function animate() {
 						...ghost,
 						velocity: {
 							x: 0,
-							y: ghost.speed,
+							y: SPEED,
 						},
 					},
 					rectangle: boundary,
@@ -755,20 +629,20 @@ function animate() {
 
 			switch (direction) {
 				case 'down':
-					ghost.velocity.y = ghost.speed;
+					ghost.velocity.y = SPEED;
 					ghost.velocity.x = 0;
 					break;
 				case 'up':
-					ghost.velocity.y = -ghost.speed;
+					ghost.velocity.y = -SPEED;
 					ghost.velocity.x = 0;
 					break;
 				case 'right':
 					ghost.velocity.y = 0;
-					ghost.velocity.x = ghost.speed;
+					ghost.velocity.x = SPEED;
 					break;
 				case 'left':
 					ghost.velocity.y = 0;
-					ghost.velocity.x = -ghost.speed;
+					ghost.velocity.x = -SPEED;
 					break;
 			}
 
