@@ -58,6 +58,16 @@ class Player {
 			this.openRate = -this.openRate;
 		}
 		this.radians += this.openRate;
+
+		if (this.velocity.x > 0) {
+			this.rotation = 0;
+		} else if (this.velocity.x < 0) {
+			this.rotation = Math.PI;
+		} else if (this.velocity.y < 0) {
+			this.rotation = Math.PI * 1.5;
+		} else if (this.velocity.y > 0) {
+			this.rotation = Math.PI / 2;
+		}
 	}
 }
 

@@ -224,6 +224,7 @@ function animate() {
 			}
 		}
 	}
+
 	for (let i = ghosts.length - 1; i >= 0; i--) {
 		const ghost = ghosts[i];
 		if (
@@ -315,6 +316,7 @@ function animate() {
 	});
 
 	player.update();
+
 	ghosts.forEach((ghost) => {
 		ghost.update();
 
@@ -381,6 +383,7 @@ function animate() {
 				collisions.push('down');
 			}
 		});
+
 		if (collisions.length > ghost.prevCollisions.length)
 			ghost.prevCollisions = collisions;
 
@@ -418,16 +421,6 @@ function animate() {
 			ghost.prevCollisions = [];
 		}
 	});
-
-	if (player.velocity.x > 0) {
-		player.rotation = 0;
-	} else if (player.velocity.x < 0) {
-		player.rotation = Math.PI;
-	} else if (player.velocity.y < 0) {
-		player.rotation = Math.PI * 1.5;
-	} else if (player.velocity.y > 0) {
-		player.rotation = Math.PI / 2;
-	}
 }
 
 setInterval(animate(), 1000 / 60);
