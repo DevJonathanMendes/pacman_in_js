@@ -16,30 +16,14 @@ const game = document.querySelector('.game');
 const btnStart = document.querySelector('.btnStart');
 
 const keys = {
-	w: {
-		pressed: false,
-	},
-	a: {
-		pressed: false,
-	},
-	s: {
-		pressed: false,
-	},
-	d: {
-		pressed: false,
-	},
-	btn_up: {
-		pressed: false,
-	},
-	btn_left: {
-		pressed: false,
-	},
-	btn_down: {
-		pressed: false,
-	},
-	btn_right: {
-		pressed: false,
-	},
+	w: false,
+	a: false,
+	s: false,
+	d: false,
+	btn_up: false,
+	btn_left: false,
+	btn_down: false,
+	btn_right: false,
 };
 
 let lastKey = '';
@@ -127,10 +111,7 @@ function animate() {
 	animationId = requestAnimationFrame(animate);
 	ctx.clearRect(0, 0, 420, 720);
 
-	if (
-		(keys.w.pressed && lastKey === 'w') ||
-		(keys.btn_up.pressed && lastKey === 'btn_up')
-	) {
+	if ((keys.w && lastKey === 'w') || (keys.btn_up && lastKey === 'btn_up')) {
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
 			if (
@@ -152,8 +133,8 @@ function animate() {
 			}
 		}
 	} else if (
-		(keys.a.pressed && lastKey === 'a') ||
-		(keys.btn_left.pressed && lastKey === 'btn_left')
+		(keys.a && lastKey === 'a') ||
+		(keys.btn_left && lastKey === 'btn_left')
 	) {
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
@@ -176,8 +157,8 @@ function animate() {
 			}
 		}
 	} else if (
-		(keys.s.pressed && lastKey === 's') ||
-		(keys.btn_down.pressed && lastKey === 'btn_down')
+		(keys.s && lastKey === 's') ||
+		(keys.btn_down && lastKey === 'btn_down')
 	) {
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
@@ -200,8 +181,8 @@ function animate() {
 			}
 		}
 	} else if (
-		(keys.d.pressed && lastKey === 'd') ||
-		(keys.btn_right.pressed && lastKey === 'btn_right')
+		(keys.d && lastKey === 'd') ||
+		(keys.btn_right && lastKey === 'btn_right')
 	) {
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
@@ -428,19 +409,19 @@ setInterval(animate(), 1000 / 60);
 addEventListener('keydown', ({ key }) => {
 	switch (key) {
 		case 'w':
-			keys.w.pressed = true;
+			keys.w = true;
 			lastKey = 'w';
 			break;
 		case 'a':
-			keys.a.pressed = true;
+			keys.a = true;
 			lastKey = 'a';
 			break;
 		case 's':
-			keys.s.pressed = true;
+			keys.s = true;
 			lastKey = 's';
 			break;
 		case 'd':
-			keys.d.pressed = true;
+			keys.d = true;
 			lastKey = 'd';
 			break;
 	}
@@ -449,16 +430,16 @@ addEventListener('keydown', ({ key }) => {
 addEventListener('keyup', ({ key }) => {
 	switch (key) {
 		case 'w':
-			keys.w.pressed = false;
+			keys.w = false;
 			break;
 		case 'a':
-			keys.a.pressed = false;
+			keys.a = false;
 			break;
 		case 's':
-			keys.s.pressed = false;
+			keys.s = false;
 			break;
 		case 'd':
-			keys.d.pressed = false;
+			keys.d = false;
 			break;
 	}
 });
@@ -473,18 +454,18 @@ btnStart.addEventListener('click', () => {
 	intervalID = setInterval(updateTime, 1000);
 });
 btn_up.addEventListener('click', () => {
-	keys.btn_up.pressed = true;
+	keys.btn_up = true;
 	lastKey = 'btn_up';
 });
 btn_left.addEventListener('click', () => {
-	keys.btn_left.pressed = true;
+	keys.btn_left = true;
 	lastKey = 'btn_left';
 });
 btn_down.addEventListener('click', () => {
-	keys.btn_down.pressed = true;
+	keys.btn_down = true;
 	lastKey = 'btn_down';
 });
 btn_right.addEventListener('click', () => {
-	keys.btn_right.pressed = true;
+	keys.btn_right = true;
 	lastKey = 'btn_right';
 });
