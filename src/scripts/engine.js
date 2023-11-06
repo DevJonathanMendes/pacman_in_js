@@ -1,13 +1,10 @@
 import { Boundary, Player, Ghost } from './classes.js';
 import { ctx, WIDTH, HEIGHT, SPEED } from './constants.js';
 import { boundaries, fruits, powerUps } from './map.js';
+import { keys } from './control.js';
 
 const scoreNumber = document.querySelector('.scoreNumber');
 const timeNumber = document.querySelector('.timeNumber');
-const btn_up = document.querySelector('.btn_up');
-const btn_left = document.querySelector('.btn_left');
-const btn_down = document.querySelector('.btn_down');
-const btn_right = document.querySelector('.btn_right');
 const info = document.querySelector('.info');
 const lose = document.querySelector('.lose');
 const win = document.querySelector('.win');
@@ -15,34 +12,6 @@ const timer = document.querySelector('.timer');
 const game = document.querySelector('.game');
 const btnStart = document.querySelector('.btnStart');
 
-const keys = {
-	w: {
-		pressed: false,
-	},
-	a: {
-		pressed: false,
-	},
-	s: {
-		pressed: false,
-	},
-	d: {
-		pressed: false,
-	},
-	btn_up: {
-		pressed: false,
-	},
-	btn_left: {
-		pressed: false,
-	},
-	btn_down: {
-		pressed: false,
-	},
-	btn_right: {
-		pressed: false,
-	},
-};
-
-let lastKey = '';
 let score = 0;
 let gameAudio;
 let startTime = 0;
@@ -123,14 +92,34 @@ function collides({ circle, rectangle }) {
 	);
 }
 
+function func(velocityX, velocityY, direction) {
+	for (let i = 0; i < boundaries.length; i++) {
+		const boundary = boundaries[i];
+		if (
+			collides({
+				circle: {
+					...player,
+					velocity: {
+						x: velocityX,
+						y: velocityY,
+					},
+				},
+				rectangle: boundary,
+			})
+		) {
+			player.velocity.y = velocityX;
+			break;
+		} else {
+			player.velocity.y = velocityY;
+		}
+	}
+}
+
 function animate() {
 	animationId = requestAnimationFrame(animate);
 	ctx.clearRect(0, 0, 420, 720);
 
-	if (
-		(keys.w.pressed && lastKey === 'w') ||
-		(keys.btn_up.pressed && lastKey === 'btn_up')
-	) {
+	if (keys.up) {
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
 			if (
@@ -151,10 +140,8 @@ function animate() {
 				player.velocity.y = -4;
 			}
 		}
-	} else if (
-		(keys.a.pressed && lastKey === 'a') ||
-		(keys.btn_left.pressed && lastKey === 'btn_left')
-	) {
+	}
+	if (keys.left) {
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
 			if (
@@ -175,10 +162,8 @@ function animate() {
 				player.velocity.x = -4;
 			}
 		}
-	} else if (
-		(keys.s.pressed && lastKey === 's') ||
-		(keys.btn_down.pressed && lastKey === 'btn_down')
-	) {
+	}
+	if (keys.down) {
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
 			if (
@@ -199,10 +184,8 @@ function animate() {
 				player.velocity.y = 4;
 			}
 		}
-	} else if (
-		(keys.d.pressed && lastKey === 'd') ||
-		(keys.btn_right.pressed && lastKey === 'btn_right')
-	) {
+	}
+	if (keys.right) {
 		for (let i = 0; i < boundaries.length; i++) {
 			const boundary = boundaries[i];
 			if (
@@ -425,44 +408,6 @@ function animate() {
 
 setInterval(animate(), 1000 / 60);
 
-addEventListener('keydown', ({ key }) => {
-	switch (key) {
-		case 'w':
-			keys.w.pressed = true;
-			lastKey = 'w';
-			break;
-		case 'a':
-			keys.a.pressed = true;
-			lastKey = 'a';
-			break;
-		case 's':
-			keys.s.pressed = true;
-			lastKey = 's';
-			break;
-		case 'd':
-			keys.d.pressed = true;
-			lastKey = 'd';
-			break;
-	}
-});
-
-addEventListener('keyup', ({ key }) => {
-	switch (key) {
-		case 'w':
-			keys.w.pressed = false;
-			break;
-		case 'a':
-			keys.a.pressed = false;
-			break;
-		case 's':
-			keys.s.pressed = false;
-			break;
-		case 'd':
-			keys.d.pressed = false;
-			break;
-	}
-});
-
 btnStart.addEventListener('click', () => {
 	info.style.display = 'none';
 	game.style.display = 'block';
@@ -471,20 +416,4 @@ btnStart.addEventListener('click', () => {
 	startTime = Date.now();
 
 	intervalID = setInterval(updateTime, 1000);
-});
-btn_up.addEventListener('click', () => {
-	keys.btn_up.pressed = true;
-	lastKey = 'btn_up';
-});
-btn_left.addEventListener('click', () => {
-	keys.btn_left.pressed = true;
-	lastKey = 'btn_left';
-});
-btn_down.addEventListener('click', () => {
-	keys.btn_down.pressed = true;
-	lastKey = 'btn_down';
-});
-btn_right.addEventListener('click', () => {
-	keys.btn_right.pressed = true;
-	lastKey = 'btn_right';
 });
